@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import os
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Mapping, Sequence
 
 from polars.series.utils import expr_dispatch
 from polars.utils._wrap import wrap_df
 from polars.utils.various import sphinx_accessor
 
 if TYPE_CHECKING:
-    from polars import DataFrame, Series
+    from polars import DataFrame, DataType, Series
     from polars.polars import PySeries
-    from polars.type_aliases import SchemaDict
 elif os.getenv("BUILDING_SPHINX_DOCS"):
     property = sphinx_accessor
 
@@ -66,7 +65,7 @@ class StructNameSpace:
         """
 
     @property
-    def schema(self) -> SchemaDict:
+    def schema(self) -> Mapping[str, DataType]:
         """Get the struct definition as a name/dtype schema dict."""
         if getattr(self, "_s", None) is None:
             return {}
