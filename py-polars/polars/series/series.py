@@ -6937,7 +6937,7 @@ class Series:
         True
 
         """
-        return self.dtype is Boolean
+        return self.dtype == Boolean
 
     @deprecate_function("Use `Series.dtype == pl.Utf8` instead.", version="0.19.14")
     def is_utf8(self) -> bool:
@@ -6954,7 +6954,7 @@ class Series:
         True
 
         """
-        return self.dtype is Utf8
+        return self.dtype == Utf8
 
     # Keep the `list` and `str` properties below at the end of the definition of Series,
     # as to not confuse mypy with the type annotation `str` and `list`
