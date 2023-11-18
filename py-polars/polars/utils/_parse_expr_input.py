@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import date, datetime, time, timedelta
 from typing import TYPE_CHECKING, Iterable
 
 import polars._reexport as pl
@@ -103,22 +102,9 @@ def parse_as_expression(
     elif isinstance(input, str) and not str_as_lit:
         expr = F.col(input)
         structify = False
-    elif (
-        isinstance(
-            input, (int, float, str, bytes, pl.Series, datetime, date, time, timedelta)
-        )
-        or input is None
-    ):
+    else:
         expr = F.lit(input)
         structify = False
-    elif isinstance(input, (list, tuple)):
-        expr = F.lit(pl.Series("literal", [input]))
-        structify = False
-    else:
-        raise TypeError(
-            f"did not expect value {input!r} of type {type(input).__name__!r}"
-            "\n\nTry disambiguating with `lit` or `col`."
-        )
 
     if structify:
         expr = _structify_expression(expr)
