@@ -310,6 +310,11 @@ pub enum FunctionExpr {
     EwmVar {
         options: EWMOptions,
     },
+    #[cfg(feature = "replace")]
+    Replace {
+        mapping: PlHashMap<i64, i64>,
+        return_dtype: DataType,
+    },
 }
 
 impl Hash for FunctionExpr {
@@ -499,6 +504,14 @@ impl Hash for FunctionExpr {
             EwmStd { options } => options.hash(state),
             #[cfg(feature = "ewma")]
             EwmVar { options } => options.hash(state),
+            #[cfg(feature = "replace")]
+            Replace {
+                mapping,
+                return_dtype,
+            } => {
+                // mapping.hash(state);
+                // return_dtype.hash(state);
+            },
         }
     }
 }
@@ -663,6 +676,8 @@ impl Display for FunctionExpr {
             EwmStd { .. } => "ewm_std",
             #[cfg(feature = "ewma")]
             EwmVar { .. } => "ewm_var",
+            #[cfg(feature = "replace")]
+            Replace { .. } => "replace",
         };
         write!(f, "{s}")
     }
@@ -999,6 +1014,22 @@ impl From<FunctionExpr> for SpecialEq<Arc<dyn SeriesUdf>> {
             EwmStd { options } => map!(ewm::ewm_std, options),
             #[cfg(feature = "ewma")]
             EwmVar { options } => map!(ewm::ewm_var, options),
+            #[cfg(feature = "replace")]
+            Replace {
+                mapping,
+                return_dtype,
+            } => map_as_slice!(dispatch::replace, mapping, return_dtype),
         }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'a, K, V> Deserialize<'a> for PlHashMap<K, V> {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'a>,
+    {
+        let t = LogicalPlan::deserialize(deserializer)?;
+        Ok(SpecialEq(Arc::new(t)))
     }
 }

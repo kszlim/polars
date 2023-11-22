@@ -113,3 +113,14 @@ pub(super) fn arg_unique(s: &Series) -> PolarsResult<Series> {
 pub(super) fn rank(s: &Series, options: RankOptions, seed: Option<u64>) -> PolarsResult<Series> {
     Ok(s.rank(options, seed))
 }
+
+#[cfg(feature = "replace")]
+pub(super) fn replace(
+    s: &[Series],
+    mapping: PlHashMap<i64, i64>,
+    return_dtype: DataType,
+) -> PolarsResult<Series> {
+    let series = &s[0];
+    let default = &s[1];
+    polars_ops::prelude::replace(series, &mapping, default, return_dtype)
+}
