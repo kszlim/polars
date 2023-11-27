@@ -1,3 +1,5 @@
+use std::cmp;
+
 use polars_core::prelude::*;
 use polars_core::series::Series;
 use polars_time::{time_range_impl, ClosedWindow, Duration};
@@ -36,6 +38,7 @@ pub(super) fn time_ranges(
 ) -> PolarsResult<Series> {
     let start = &s[0];
     let end = &s[1];
+    let len = cmp::max(start.len(), end.len());
 
     let mut start = start.cast(&DataType::Time)?;
     let mut end = end.cast(&DataType::Time)?;
@@ -49,8 +52,8 @@ pub(super) fn time_ranges(
 
     let mut builder = ListPrimitiveChunkedBuilder::<Int64Type>::new(
         "time_range",
-        start.len(),
-        start.len() * CAPACITY_FACTOR,
+        len,
+        len * CAPACITY_FACTOR,
         DataType::Int64,
     );
     for (start, end) in start.into_iter().zip(end) {
